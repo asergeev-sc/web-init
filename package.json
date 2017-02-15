@@ -1,0 +1,30 @@
+{
+    "name": "ocbesbn-webinit",
+    "version": "0.1.0",
+    "description": "Basic web server setup for OCBN REST services.",
+    "main": "index.js",
+    "scripts": {
+        "test": "npm run test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "ocbesbn-webinit"
+    },
+    "keywords": [
+        "Express",
+        "REST",
+        "OpusCapita"
+    ],
+    "author": "Christian Drengenberg",
+    "license": "Apache-2.0",
+    "dependencies": {
+        "express": "^4.14.1",
+        "body-parser": "^1.16.1",
+        "cookie-parser": "^1.4.3",
+        "helmet": "^3.4.0",
+        "morgan": "^1.8.1",
+        "extend": "^3.0.0",
+        "webpack": "^2.2.1",
+        "webpack-dev-middleware": "^1.10.0"
+    }
+}
