@@ -101,8 +101,8 @@ module.exports.init = function(config) {
 
     if(config.routes.addRoutes === true)
     {
-        ((paths, db) => Array.isArray(paths) ? paths.forEach(path => require(path).init(app, db))
-            : [ require(paths).init(app, db) ])(config.routes.modulePaths, config.routes.dbInstance);
+        ((paths, db, config) => Array.isArray(paths) ? paths.forEach(path => require(path).init(app, db, config))
+            : [ require(paths).init(app, db, config) ])(config.routes.modulePaths, config.routes.dbInstance, config.routes);
     }
 
     var self = this;
