@@ -28,7 +28,7 @@ module.exports.DefaultConfig = {
         maxBodySize : 1048576, // 1 MiB
         staticFilePath : express.static(__dirname + '/static'),
         hostname : '0.0.0.0',
-        port : 3000,
+        port : process.env.PORT || 3000,
         events : {
             onStart : function(server) { },
             onEnd : function(server) { },
