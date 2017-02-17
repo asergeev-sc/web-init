@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const extend = require('extend');
-const fs = require('fs');
+const logger = require('winston');
 
 // -- Enums -> ----------------------------------------------------------------------------
 module.exports.Server = {
@@ -22,12 +22,12 @@ module.exports.Morgan = {
 // -- Config -> ----------------------------------------------------------------------------
 module.exports.DefaultConfig = {
     server : {
-        mode : this.Server.Mode.Productive,
+        mode : process.env.DEVELOPMENT ? this.Server.Mode.Dev : this.Server.Mode.Productive,
         security : this.Server.Security.All,
         crossOrigins : [ '*' ],
         maxBodySize : 1048576, // 1 MiB
         staticFilePath : express.static(__dirname + '/static'),
-        hostname : '0.0.0.0',
+        hostname : process.env.HOST || '0.0.0.0',
         port : process.env.PORT || 3000,
         events : {
             onStart : function(server) { },
@@ -42,7 +42,7 @@ module.exports.DefaultConfig = {
     },
     routes : {
         addRoutes : true,
-        modulePaths : [ fs.realpathSync('./src/server/routes') ],
+        modulePaths : [ './src/server/routes' ],
         dbInstance : null
     },
     morgan : {
@@ -55,8 +55,12 @@ module.exports.DefaultConfig = {
 module.exports.init = function(config) {
 
     this.config = config = extend(true, { }, this.DefaultConfig, config);
+    logger.level = config.server.mode === this.Server.Mode.Dev ? 'debug' : 'info';
+
+    logger.log('info', 'Starting up web server... Host: %s, Port: %s', config.server.hostname, config.server.port);
 
     var app = express();
+    this.app = app;
 
     app.use(helmet());
     app.use(cookieParser());
@@ -65,6 +69,8 @@ module.exports.init = function(config) {
 
     if(config.server.security & this.Server.Security.AllowCrossOrigin)
     {
+        logger.log('debug', 'Allowing cross origin requests for: %j', config.server.crossOrigins);
+
         app.use((req, res, next) =>
         {
         	res.header('Access-Control-Allow-Origin', config.server.crossOrigins.join(' ')); // TODO: Only trusted hosts.
@@ -81,6 +87,8 @@ module.exports.init = function(config) {
     }
     else
     {
+        logger.log('debug', 'Using morgan and webpack.');
+
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
         if(config.server.webpack.useWebpack)
@@ -101,6 +109,8 @@ module.exports.init = function(config) {
 
     if(config.routes.addRoutes === true)
     {
+        logger.log('debug', 'Adding routes...');
+
         ((paths, db, config) => Array.isArray(paths) ? paths.forEach(path => require(path).init(app, db, config))
             : [ require(paths).init(app, db, config) ])(config.routes.modulePaths, config.routes.dbInstance, config.routes);
     }
@@ -116,11 +126,16 @@ module.exports.init = function(config) {
     process.on('SIGTERM', () => server.close(onServerEnd));
     process.on('SIGINT', () => server.close(onServerEnd));
 
+    logger.log('info', 'Server started.');
+
     return app;
 }
 
 module.exports.end = function()
 {
+
+    var self = this;
+
     if(this.server)
-        this.server.close(onServerEnd);
+        this.server.close(() => self.config.server.events.onEnd.call(self, self.app));
 }

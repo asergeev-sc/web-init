@@ -1,14 +1,18 @@
 {
-  "name": "ocbesbn-webinit",
-  "version": "0.1.1",
+  "name": "ocbesbn-web-init",
+  "version": "0.1.2",
   "description": "Basic web server setup for OCBN REST services.",
   "main": "index.js",
   "scripts": {
-    "test": "npm run test"
+    "test": "npm run clean && nyc mocha",
+    "clean": "rimraf coverage .nyc_output routes"
+  },
+  "nyc": {
+    "exclude": []
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/OpusCapitaBusinessNetwork/webinit"
+    "url": "https://github.com/OpusCapitaBusinessNetwork/web-init"
   },
   "keywords": [
     "Express",
@@ -25,6 +29,13 @@
     "morgan": "^1.8.1",
     "extend": "^3.0.0",
     "webpack": "^2.2.1",
-    "webpack-dev-middleware": "^1.10.0"
+    "webpack-dev-middleware": "^1.10.0",
+    "winston": "2.3.1"
+  },
+  "devDependencies": {
+    "jsduck": "^1.1.2",
+    "mocha": "^3.2.0",
+    "nyc": "^10.1.2",
+    "rimraf": "^2.5.4"
   }
 }
