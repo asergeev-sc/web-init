@@ -1,7 +1,7 @@
 {
   "name": "ocbesbn-web-init",
-  "version": "0.1.2",
-  "description": "Basic web server setup for OCBN REST services.",
+  "version": "0.1.3",
+  "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
   "main": "index.js",
   "scripts": {
     "test": "npm run clean && nyc mocha",
