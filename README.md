@@ -34,3 +34,41 @@ server.init({});
 ```
 This code applies a lot of conventions that of course can, but may not be overwritten by passing a configuration object
 to the init() method.
+
+### Default configuration
+
+The default configuration object provides hints about what the module's standard behavior is like. It is mostly recommended to leave
+most settings as they are and treat them more as general conventions to a common structure.
+
+```JS
+{
+    server : {
+        mode : process.env.DEVELOPMENT ? this.Server.Mode.Dev : this.Server.Mode.Productive,
+        security : this.Server.Security.All,
+        crossOrigins : [ '*' ],
+        maxBodySize : 1048576, // 1 MiB
+        staticFilePath : express.static(__dirname + '/static'),
+        hostname : process.env.HOST || '0.0.0.0',
+        port : process.env.PORT || 3000,
+        events : {
+            onStart : function(server) { },
+            onEnd : function(server) { },
+            onRequest : function(req, res, next) { next(); },
+            onError : function(err, server) { process.stderr.write(err); }
+        },
+        webpack : {
+            useWebpack : false,
+            configFilePath : './webpack.conf'
+        }
+    },
+    routes : {
+        addRoutes : true,
+        modulePaths : [ './src/server/routes' ],
+        dbInstance : null
+    },
+    morgan : {
+        format : this.Morgan.Format.Dev,
+        stream : this.Morgan.OutputStream.Console
+    }
+}
+```
