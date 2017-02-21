@@ -3,6 +3,8 @@ This module combines more general and common setup routines for creating a basic
 Using it may help creating a more common and comparable structure over muliple services by following conventions
 made by this service.
 
+---
+
 ### Minimum setup
 
 First got to your local code directory and run:
@@ -30,20 +32,22 @@ const server = require('ocbesbn-web-init');
 
 // You might want to pass a configuration object to the init method. A list of parameters and their default values
 // can be found at the .DefaultConfig module property.
-server.init({});
+server.init({}).then(console.log);
 ```
 This code applies a lot of conventions that of course can, but may not be overwritten by passing a configuration object
 to the init() method.
 
+---
+
 ### Default configuration
 
-The default configuration object provides hints about what the module's standard behavior is like. It is mostly recommended to leave
-most settings as they are and treat them more as general conventions to a common structure.
+The default configuration object provides hints about what the module's standard behavior is like. It is mostly recommended to leave most settings as they are and treat them more as general conventions to a common structure
+in order to maintain a common setup across different services.
 
 ```JS
 {
     server : {
-        mode : process.env.DEVELOPMENT ? this.Server.Mode.Dev : this.Server.Mode.Productive,
+        mode : process.env.NODE_ENV === 'development' ? this.Server.Mode.Dev : this.Server.Mode.Productive,
         security : this.Server.Security.All,
         crossOrigins : [ '*' ],
         maxBodySize : 1048576, // 1 MiB
