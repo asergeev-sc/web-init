@@ -58,7 +58,7 @@ module.exports.Morgan = {
 }
 
 /**
- * Static object representing a default configuration set for ocbesbn-web-init.
+ * Static object representing a default configuration set for ocbesbn-web-init. Have a look at the [actual values]{@link DefaultConfig}.
  *
  * @property {object} server - All server web server related settings.
  * @property {Server.Mode} server.mode - Environment [mode]{@link module:ocbesbn-web-init.Server.Mode} to run in.

@@ -3,7 +3,7 @@ const assert = require('assert');
 const fs = require('fs');
 const http = require('http');
 
-var routeScript = "module.exports.init = (app) => { app.get('/hello', (req, res) => res.send('world!')) }";
+var routeScript = "module.exports.init = (app) => { app.get('/hello', (req, res) => res.send('world!')); return require('bluebird').resolve() }";
 
 describe('Main', () =>
 {
@@ -35,9 +35,9 @@ describe('Main', () =>
                 }
             });
 
-            assert(typeof app === 'function');
+            assert.equal('object', typeof app);
+            assert.equal('function', typeof app.then);
+            app.then((app) => assert.equal('function', typeof app));
         });
-
-
     });
 });
