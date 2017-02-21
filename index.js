@@ -22,7 +22,7 @@ module.exports.Morgan = {
 // -- Config -> ----------------------------------------------------------------------------
 module.exports.DefaultConfig = {
     server : {
-        mode : process.env.DEVELOPMENT ? this.Server.Mode.Dev : this.Server.Mode.Productive,
+        mode : process.env.NODE_ENV === 'development' ? this.Server.Mode.Dev : this.Server.Mode.Productive,
         security : this.Server.Security.All,
         crossOrigins : [ '*' ],
         maxBodySize : 1048576, // 1 MiB
