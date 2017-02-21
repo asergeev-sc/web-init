@@ -17,12 +17,16 @@ but may not be overwritten to stay with common service conventions.
 
 A route module can be created using the following code:
 ```JS
+const Promise = require('bluebird');
+
 module.exports.init = function(app, db, config)
 {
     // app => express instance.
     // db => can be defined by configuration when running the .init() method.
     // config => everything from config.routes passed when running the .init() method.
     app.get('/', (req, res) => res.send('hello world'));
+
+    return Promise.resolve();
 }
 ```
 
