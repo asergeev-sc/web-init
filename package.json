@@ -4,7 +4,7 @@
   "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
   "main": "index.js",
   "scripts": {
-    "test": "npm run clean && nyc mocha",
+    "test": "npm run clean && ./node_modules/.bin/nyc ./node_modules/.bin/mocha -R mocha-junit-reporter",
     "clean": "rimraf coverage .nyc_output routes",
     "docs": "./node_modules/.bin/jsdoc2md index.js > wiki/Home.md"
   },
@@ -36,6 +36,7 @@
   "devDependencies": {
     "jsduck": "^1.1.2",
     "mocha": "^3.2.0",
+    "mocha-junit-reporter": "^1.12.1",
     "nyc": "^10.1.2",
     "rimraf": "^2.5.4",
     "jsdoc-to-markdown": "^3.0.0"
