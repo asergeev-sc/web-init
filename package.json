@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run clean && ./node_modules/.bin/nyc ./node_modules/.bin/mocha -R mocha-junit-reporter",
-    "clean": "rimraf coverage .nyc_output routes",
+    "clean": "./node_modules/.bin/rimraf coverage .nyc_output routes",
     "docs": "./node_modules/.bin/jsdoc2md index.js > wiki/Home.md"
   },
   "nyc": {
