@@ -11,7 +11,7 @@ dependencies:
 
 test:
   override:
-    - docker-compose run test npm run test
+    - docker-compose up
   post:
     - sudo mkdir $CIRCLE_TEST_REPORTS/junit
     - sudo cp test-results.xml $CIRCLE_TEST_REPORTS/junit
