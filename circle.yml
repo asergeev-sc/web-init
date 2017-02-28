@@ -1,0 +1,23 @@
+machine:
+  pre:
+   - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+   - pip install --force-reinstall -U docker-compose==1.10.0
+  services:
+    - docker
+
+dependencies:
+  pre:
+    - echo -e "$NPM_USERNAME\n$NPM_PASSWORD\n$NPM_EMAIL" | npm login
+
+test:
+  override:
+    - docker-compose run test npm run test
+  post:
+    - sudo mkdir $CIRCLE_TEST_REPORTS/junit
+    - sudo cp test-results.xml $CIRCLE_TEST_REPORTS/junit
+
+deployment:
+  npm:
+    branch: master
+    commands:
+      - npm publish
