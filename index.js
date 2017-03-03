@@ -1,5 +1,4 @@
 const express = require('express');
-const webpack = require('webpack');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
@@ -7,6 +6,7 @@ const morgan = require('morgan');
 const extend = require('extend');
 const logger = require('winston');
 const Promise = require('bluebird');
+const ServiceClient = require('ocbesbn-service-client');
 
 /**
  * Module for general and common initialization of the OpusCapita Business Network
@@ -21,6 +21,7 @@ const Promise = require('bluebird');
  * @requires extend
  * @requires winston
  * @requires bluebird
+ * @requires ocbesbn-service-client
  */
 
 /**
@@ -76,6 +77,10 @@ module.exports.Morgan = {
  * @property {object} server.webpack - Webpack configuration.
  * @property {boolean} server.webpack.useWebpack - Controls whenever the server should use Webpack.
  * @property {boolean} server.webpack.configFilePath - Webpack configuration file path.
+ * @property {object} serviceClient - Configuration for injecting a [ServiceClient]{@link https://github.com/OpusCapitaBusinessNetwork/service-client} instance into every request.
+ * @property {boolean} serviceClient.injectIntoRequest - Whenever to active ServiceClient-injection.
+ * @property {boolean} serviceClient.consul - Configuration options for service discovery done by the ServiceClient.
+ * @property {boolean} serviceClient.consul.host - Hostname for a Consul service discovery server.
  * @property {object} routes - Basic routing configuration for the RESTful web server.
  * @property {boolean} routes.addRoutes - Controls whenever routes should be added to be accessible via http.
  * @property {array} routes.modelPaths - List of modules to load in order to register wev server routes.
@@ -102,6 +107,12 @@ module.exports.DefaultConfig = {
         webpack : {
             useWebpack : false,
             configFilePath : './webpack.conf'
+        }
+    },
+    serviceClient : {
+        injectIntoRequest : false,
+        consul : {
+            host : 'localhost'
         }
     },
     routes : {
@@ -137,6 +148,17 @@ module.exports.init = function(config) {
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
 
+    if(config.serviceClient.injectIntoRequest === true)
+    {
+        app.use((req, res, next) =>
+        {
+            req.serviceClient = new ServiceClient(config.serviceClient);
+            req.serviceClient.contextify({ headers : req.headers });
+
+            next();
+        });
+    }
+
     if(config.server.security & this.Server.Security.AllowCrossOrigin)
     {
         logger.log('debug', 'Allowing cross origin requests for: %j', config.server.crossOrigins);
@@ -163,6 +185,7 @@ module.exports.init = function(config) {
 
         if(config.server.webpack.useWebpack)
         {
+            const webpack = require('webpack');
             const webpackMiddleware = require('webpack-dev-middleware');
             const webpackCompiler = webpack(require(config.server.webpack.configFilePath));
 
