@@ -106,7 +106,7 @@ module.exports.DefaultConfig = {
         },
         webpack : {
             useWebpack : false,
-            configFilePath : './webpack.conf'
+            configFilePath : process.cwd() + '/webpack.conf'
         }
     },
     serviceClient : {
@@ -117,7 +117,7 @@ module.exports.DefaultConfig = {
     },
     routes : {
         addRoutes : true,
-        modulePaths : [ './src/server/routes' ],
+        modulePaths : [ process.cwd() + '/src/server/routes' ],
         dbInstance : null
     },
     morgan : {

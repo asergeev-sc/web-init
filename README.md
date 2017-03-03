@@ -71,7 +71,7 @@ in order to maintain a common setup across different services.
         },
         webpack : {
             useWebpack : false,
-            configFilePath : './webpack.conf'
+            configFilePath : process.cwd() + '/webpack.conf'
         }
     },
     serviceClient : {
@@ -82,7 +82,7 @@ in order to maintain a common setup across different services.
     },
     routes : {
         addRoutes : true,
-        modulePaths : [ './src/server/routes' ],
+        modulePaths : [ process.cwd() + '/src/server/routes' ],
         dbInstance : null
     },
     morgan : {
