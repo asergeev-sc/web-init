@@ -1,6 +1,6 @@
 # ocbesbn-web-init
 This module combines more general and common setup routines for creating a basic REST service environment.
-Using it may help creating a more common and comparable structure over muliple services by following conventions
+Using it may help creating a more common and comparable structure over multiple services by following conventions
 made by this service.
 
 ---

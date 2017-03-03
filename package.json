@@ -4,9 +4,10 @@
     "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
     "main": "index.js",
     "scripts": {
-        "test": "npm run clean && ./node_modules/.bin/nyc ./node_modules/.bin/mocha -R mocha-junit-reporter",
-        "clean": "./node_modules/.bin/rimraf coverage .nyc_output routes",
-        "docs": "./node_modules/.bin/jsdoc2md index.js > wiki/Home.md"
+        "start": "npm run test",
+        "test": "npm run clean && ${NODE_PATH}/.bin/nyc ${NODE_PATH}/.bin/mocha -R mocha-junit-reporter",
+        "clean": "${NODE_PATH}/.bin/rimraf coverage .nyc_output routes",
+        "docs": "${NODE_PATH}/.bin/jsdoc2md index.js > wiki/Home.md"
     },
     "nyc": {
         "exclude": []

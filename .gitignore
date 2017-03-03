@@ -3,3 +3,6 @@ coverage
 node_modules
 routes
 test-results.xml
+npm-debug.log
+dmd
+jsdoc-api
