@@ -43,6 +43,11 @@ to the init() method.
 
 ---
 
+### Inter-Service-Communication
+If desired, this module may provide a [ServiceClient](https://github.com/OpusCapitaBusinessNetwork/service-client) instance initialized with and injected into any incoming HTTP request. This allows you to talk to other services while automatically keeping all headers and cookies sent with the original request. This will provide a full request context towards the target service. See the *serviceClient* key of the [DefaultConfig](#default-configuration) object.
+
+---
+
 ### Default configuration
 
 The default configuration object provides hints about what the module's standard behavior is like. It is mostly recommended to leave most settings as they are and treat them more as general conventions to a common structure
@@ -67,6 +72,12 @@ in order to maintain a common setup across different services.
         webpack : {
             useWebpack : false,
             configFilePath : './webpack.conf'
+        }
+    },
+    serviceClient : {
+        injectIntoRequest : false,
+        consul : {
+            host : 'localhost'
         }
     },
     routes : {
