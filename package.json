@@ -1,6 +1,6 @@
 {
     "name": "ocbesbn-web-init",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
     "main": "index.js",
     "scripts": {
@@ -23,6 +23,7 @@
     "author": "Christian Drengenberg",
     "license": "Apache-2.0",
     "dependencies": {
+        "ocbesbn-config": ">=1.0.4",
         "express": "^4.14.1",
         "body-parser": "^1.16.1",
         "cookie-parser": "^1.4.3",

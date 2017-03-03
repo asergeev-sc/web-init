@@ -1,5 +1,4 @@
 const express = require('express');
-const webpack = require('webpack');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
@@ -163,6 +162,7 @@ module.exports.init = function(config) {
 
         if(config.server.webpack.useWebpack)
         {
+            const webpack = require('webpack');
             const webpackMiddleware = require('webpack-dev-middleware');
             const webpackCompiler = webpack(require(config.server.webpack.configFilePath));
 
