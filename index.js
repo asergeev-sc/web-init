@@ -227,8 +227,8 @@ module.exports.init = function(config) {
 
     this.server = app.listen(config.server.port, config.server.hostname, onServerListen);
 
-    process.on('SIGTERM', () => self.end() && process.exit());
-    process.on('SIGINT', () => self.end() && process.exit());
+    process.on('SIGTERM', () => { self.end(); process.exit(); });
+    process.on('SIGINT', () => { self.end(); process.exit(); });
 
     logger.log('info', 'Server started.');
 
