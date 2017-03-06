@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const extend = require('extend');
 const logger = require('winston');
 const Promise = require('bluebird');
+const accetLanguageParser = require('accept-language-parser');
 const ServiceClient = require('ocbesbn-service-client');
 
 /**
@@ -147,13 +148,22 @@ module.exports.init = function(config) {
     app.use(cookieParser());
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
+    app.use((req, res, next) => { req.ocbesbn = req.ocbesbn || { }; next(); })
+
+    app.use((req, res, next) =>
+    {
+        let languages = req.headers["accept-language"];
+        req.ocbesbn.acceptLanguage = languages ? accetLanguageParser.parse(languages) : [ ];
+
+        next();
+    });
 
     if(config.serviceClient.injectIntoRequest === true)
     {
         app.use((req, res, next) =>
         {
-            req.serviceClient = new ServiceClient(config.serviceClient);
-            req.serviceClient.contextify({ headers : req.headers });
+            req.ocbesbn.serviceClient = new ServiceClient(config.serviceClient);
+            req.ocbesbn.serviceClient.contextify({ headers : req.headers });
 
             next();
         });
