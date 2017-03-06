@@ -152,8 +152,8 @@ module.exports.init = function(config) {
 
     app.use((req, res, next) =>
     {
-        let languages = req.headers["accept-language"];
-        req.ocbesbn.acceptLanguage = languages ? accetLanguageParser.parse(languages) : [ ];
+        let languages = req.headers["accept-language"] || 'en';
+        req.ocbesbn.acceptLanguage = accetLanguageParser.parse(languages);
 
         next();
     });
