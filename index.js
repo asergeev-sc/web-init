@@ -225,11 +225,10 @@ module.exports.init = function(config) {
     var onServerListen = (err) => err ? config.server.events.onError.call(self, err, app) : config.server.events.onStart.call(self, app);
     var onServerEnd = () => config.server.events.onEnd.call(self, app);
 
-    var server = app.listen(config.server.port, config.server.hostname, onServerListen);
-    this.server = server;
+    this.server = app.listen(config.server.port, config.server.hostname, onServerListen);
 
-    process.on('SIGTERM', () => server.close(onServerEnd));
-    process.on('SIGINT', () => server.close(onServerEnd));
+    process.on('SIGTERM', () => self.end() && process.exit());
+    process.on('SIGINT', () => self.end() && process.exit());
 
     logger.log('info', 'Server started.');
 
