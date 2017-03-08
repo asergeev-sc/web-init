@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const extend = require('extend');
-const logger = require('winston');
+const Logger = require('./logger.js');
 const Promise = require('bluebird');
 const accetLanguageParser = require('accept-language-parser');
 const ServiceClient = require('ocbesbn-service-client');
@@ -110,6 +110,7 @@ module.exports.DefaultConfig = {
             configFilePath : process.cwd() + '/webpack.conf'
         }
     },
+    logger : new Logger({ context : { serviceName : 'web-init' } }),
     serviceClient : {
         injectIntoRequest : false,
         consul : {
@@ -137,9 +138,9 @@ module.exports.DefaultConfig = {
 module.exports.init = function(config) {
 
     this.config = config = extend(true, { }, this.DefaultConfig, config);
-    logger.level = config.server.mode === this.Server.Mode.Dev ? 'debug' : 'info';
+    var logger = config.logger;
 
-    logger.log('info', 'Starting up web server... Host: %s, Port: %s', config.server.hostname, config.server.port);
+    logger.info('Starting up web server... Host: %s, Port: %s', config.server.hostname, config.server.port);
 
     var app = express();
     this.app = app;
@@ -171,7 +172,7 @@ module.exports.init = function(config) {
 
     if(config.server.security & this.Server.Security.AllowCrossOrigin)
     {
-        logger.log('debug', 'Allowing cross origin requests for: %j', config.server.crossOrigins);
+        logger.info('Allowing cross origin requests for: %j', config.server.crossOrigins);
 
         app.use((req, res, next) =>
         {
@@ -189,7 +190,7 @@ module.exports.init = function(config) {
     }
     else
     {
-        logger.log('debug', 'Using morgan and webpack.');
+        logger.info('Using morgan and webpack.');
 
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
@@ -212,7 +213,7 @@ module.exports.init = function(config) {
 
     if(config.routes.addRoutes === true)
     {
-        logger.log('debug', 'Adding routes...');
+        logger.info('Adding routes...');
 
         var inits = ((paths, db, config) => Array.isArray(paths) ? paths.map(path => require(path).init(app, db, config))
             : [ require(paths).init(app, db, config) ])(config.routes.modulePaths, config.routes.dbInstance, config.routes);
@@ -230,7 +231,7 @@ module.exports.init = function(config) {
     process.on('SIGTERM', () => { self.end(); process.exit(); });
     process.on('SIGINT', () => { self.end(); process.exit(); });
 
-    logger.log('info', 'Server started.');
+    logger.info('Server started.');
 
     return Promise.resolve(app);
 }
