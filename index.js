@@ -82,6 +82,9 @@ module.exports.Morgan = {
  * @property {boolean} serviceClient.injectIntoRequest - Whenever to active ServiceClient-injection.
  * @property {boolean} serviceClient.consul - Configuration options for service discovery done by the ServiceClient.
  * @property {boolean} serviceClient.consul.host - Hostname for a Consul service discovery server.
+ * @property {object} serviceClient.caching - Configuration options for service-client request caching.
+ * @property {string} serviceClient.caching.driver - Cache driver to use.
+ * @property {number} serviceClient.caching.defaultExpire - Global cache entry expiration time in seconds.
  * @property {object} routes - Basic routing configuration for the RESTful web server.
  * @property {boolean} routes.addRoutes - Controls whenever routes should be added to be accessible via http.
  * @property {array} routes.modelPaths - List of modules to load in order to register wev server routes.
@@ -115,6 +118,10 @@ module.exports.DefaultConfig = {
         injectIntoRequest : false,
         consul : {
             host : 'localhost'
+        },
+        caching : {
+            driver : 'dummy',
+            defaultExpire : 600
         }
     },
     routes : {

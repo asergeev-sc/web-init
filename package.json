@@ -1,16 +1,15 @@
 {
     "name": "ocbesbn-web-init",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
     "main": "index.js",
     "scripts": {
         "start": "npm run test",
         "test": "npm run clean && ${NODE_PATH}/.bin/nyc ${NODE_PATH}/.bin/mocha -R mocha-junit-reporter",
+        "test-coverage": "${NODE_PATH}/.bin/nyc --reporter=lcov ${NODE_PATH}/.bin/mocha && sed -i 's/\\/home\\/node\\/web-init\\//\\.\\//g' coverage/lcov.info",
+        "upload-coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
         "clean": "${NODE_PATH}/.bin/rimraf coverage .nyc_output routes",
-        "docs": "${NODE_PATH}/.bin/jsdoc2md index.js > wiki/Home.md"
-    },
-    "nyc": {
-        "exclude": []
+        "doc": "${NODE_PATH}/.bin/jsdoc2md index.js > wiki/Home.md"
     },
     "repository": {
         "type": "git",

@@ -2,6 +2,7 @@ machine:
   pre:
    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
    - pip install --force-reinstall -U docker-compose==1.10.0
+   - cd web-init ; rm -Rf wiki ; git clone https://github.com/OpusCapitaBusinessNetwork/web-init.wiki.git wiki
   services:
     - docker
 
@@ -12,12 +13,16 @@ dependencies:
 test:
   override:
     - docker-compose up
+    - docker-compose run main npm run test-coverage
+    - docker-compose run main npm run doc
   post:
     - sudo mkdir $CIRCLE_TEST_REPORTS/junit
     - sudo cp test-results.xml $CIRCLE_TEST_REPORTS/junit
+    - cd wiki ; git add --all . ; git commit -am 'Updated documentation.' ; git push ; (exit 0)
 
 deployment:
   npm:
     branch: master
     commands:
       - npm publish
+      - npm run upload-coverage
