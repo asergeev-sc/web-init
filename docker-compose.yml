@@ -2,5 +2,6 @@ version: '2'
 services:
   main:
     build: .
+    network_mode: host
     volumes:
      - .:/home/node/web-init

@@ -1,12 +1,12 @@
 {
   "name": "ocbesbn-web-init",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
   "main": "index.js",
   "scripts": {
     "start": "npm run test",
-    "test": "npm run clean && ${NODE_PATH}/.bin/nyc ${NODE_PATH}/.bin/mocha -R mocha-junit-reporter",
-    "test-coverage": "${NODE_PATH}/.bin/nyc --reporter=lcov ${NODE_PATH}/.bin/mocha && sed -i 's/\\/home\\/node\\/web-init\\//\\.\\//g' coverage/lcov.info",
+    "test": "npm run clean && ${NODE_PATH}/.bin/nyc ${NODE_PATH}/.bin/mocha --timeout 5000 -R mocha-junit-reporter",
+    "test-coverage": "${NODE_PATH}/.bin/nyc --reporter=lcov ${NODE_PATH}/.bin/mocha --timeout 30000 && sed -i 's/\\/home\\/node\\/web-init\\//\\.\\//g' coverage/lcov.info",
     "upload-coverage": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "clean": "${NODE_PATH}/.bin/rimraf coverage .nyc_output routes",
     "doc": "${NODE_PATH}/.bin/jsdoc2md index.js > wiki/Home.md"
@@ -22,8 +22,11 @@
   ],
   "author": "Christian Drengenberg",
   "license": "Apache-2.0",
-  "nyc" : {
-    "exclude": [ "test", "logger.js" ]
+  "nyc": {
+    "exclude": [
+      "test",
+      "logger.js"
+    ]
   },
   "dependencies": {
     "ocbesbn-service-client": "^0.x",
@@ -38,10 +41,14 @@
     "accept-language-parser": "^1.3.0"
   },
   "devDependencies": {
+    "babel-loader": "^6.4.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-plugin-transform-object-assign": "^6.22.0",
     "coveralls": "^2.12.0",
     "jsdoc-to-markdown": "^3.0.0",
     "mocha": "^3.2.0",
     "mocha-junit-reporter": "^1.12.1",
+    "nodemon": "^1.11.0",
     "nyc": "^10.1.2",
     "rimraf": "^2.5.4",
     "webpack": "^2.2.1",

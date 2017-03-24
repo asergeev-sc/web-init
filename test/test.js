@@ -9,16 +9,17 @@ describe('Main', () =>
 {
     describe('#init()', () =>
     {
+        var removeRoutes = () => fs.existsSync('routes') && (fs.unlinkSync('routes/index.js') | fs.rmdirSync('routes'));
+        var testHttp = (onResult) => http.get('http://localhost:3000/hello', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
+
+        removeRoutes();
+
         fs.mkdirSync('routes');
         fs.writeFile('routes/index.js', routeScript);
 
-        var removeRoutes = () => fs.unlinkSync('routes/index.js') | fs.rmdirSync('routes');
-
-        var testHttp = (onResult) => http.get('http://localhost:3000/hello', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
-
         it('Basic routing test', (done) =>
         {
-            var httpResult;
+            var httpResult1;
 
             var app = server.init({
                 serviceClient : {
@@ -31,11 +32,11 @@ describe('Main', () =>
                     mode : server.Server.Mode.Dev,
                     security : server.Server.Security.AllowCrossOrigin,
                     events : {
-                        onStart : () => testHttp((res) => { httpResult = res; server.end(); }),
-                        onEnd: () => assert.equal('world!', httpResult) | removeRoutes() | done()
+                        onStart : () => testHttp((res) => { httpResult1 = res; server.end();}),
+                        onEnd: () => assert.equal(httpResult1, 'world!') | removeRoutes() | done()
                     },
                     webpack : {
-                        useWebpack : false
+                        useWebpack : true
                     }
                 }
             });

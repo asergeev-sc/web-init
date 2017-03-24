@@ -199,7 +199,6 @@ module.exports.init = function(config) {
     {
         logger.info('Using morgan and webpack.');
 
-        app.use('/static', config.server.staticFilePath);
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
         if(config.server.webpack.useWebpack)
@@ -208,12 +207,7 @@ module.exports.init = function(config) {
             const webpackMiddleware = require('webpack-dev-middleware');
             const webpackCompiler = webpack(require(config.server.webpack.configFilePath));
 
-            app.use(webpackMiddleware(webpackCompiler,
-            {
-                publicPath: config.server.staticFilePath,
-                stats: { colors: true, chunks: false },
-                noInfo: true
-            }));
+            app.use(webpackMiddleware(webpackCompiler));
         }
     }
 
