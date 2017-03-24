@@ -1,6 +1,6 @@
 {
   "name": "ocbesbn-web-init",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
   "main": "index.js",
   "scripts": {
@@ -26,8 +26,7 @@
     "exclude": [ "test", "logger.js" ]
   },
   "dependencies": {
-    "ocbesbn-config": ">=1.0.4",
-    "ocbesbn-service-client": ">=0.1.0",
+    "ocbesbn-service-client": "^0.x",
     "express": "^4.14.1",
     "body-parser": "^1.16.1",
     "cookie-parser": "^1.4.3",
