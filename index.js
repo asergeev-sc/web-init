@@ -199,6 +199,7 @@ module.exports.init = function(config) {
     {
         logger.info('Using morgan and webpack.');
 
+        app.use('/static', config.server.staticFilePath);
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
         if(config.server.webpack.useWebpack)
