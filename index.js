@@ -110,7 +110,7 @@ module.exports.DefaultConfig = {
         },
         webpack : {
             useWebpack : false,
-            configFilePath : process.cwd() + '/webpack.conf'
+            configFilePath : process.cwd() + '/webpack.conf.js'
         }
     },
     logger : new Logger({ context : { serviceName : 'web-init' } }),
@@ -198,7 +198,8 @@ module.exports.init = function(config) {
     else
     {
         logger.info('Using morgan and webpack.');
-
+        
+        app.use('/static', config.server.staticFilePath);
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
         if(config.server.webpack.useWebpack)
