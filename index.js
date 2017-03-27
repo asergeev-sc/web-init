@@ -106,7 +106,7 @@ module.exports.DefaultConfig = {
             onStart : function(server) { },
             onEnd : function(server) { },
             onRequest : function(req, res, next) { next(); },
-            onError : function(err, server) { process.stderr.write(err); }
+            onError : function(err, server) { process.stderr.write(JSON.stringify(err)); }
         },
         webpack : {
             useWebpack : false,
@@ -198,7 +198,7 @@ module.exports.init = function(config) {
     else
     {
         logger.info('Using morgan and webpack.');
-        
+
         app.use('/static', config.server.staticFilePath);
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
@@ -206,9 +206,13 @@ module.exports.init = function(config) {
         {
             const webpack = require('webpack');
             const webpackMiddleware = require('webpack-dev-middleware');
-            const webpackCompiler = webpack(require(config.server.webpack.configFilePath));
+            const webpackConfig = require(config.server.webpack.configFilePath);
+            const webpackCompiler = webpack(webpackConfig);
 
-            app.use(webpackMiddleware(webpackCompiler));
+            app.use(webpackMiddleware(webpackCompiler, {
+                publicPath : webpackConfig.output && webpackConfig.output.publicPath,
+                noInfo : true
+            }));
         }
     }
 
@@ -226,10 +230,12 @@ module.exports.init = function(config) {
 
     var self = this;
 
-    var onServerListen = (err) => err ? config.server.events.onError.call(self, err, app) : config.server.events.onStart.call(self, app);
+    var onServerListen = () => config.server.events.onStart.call(self, app);
+    var onServerError = (err) => { config.server.events.onError.call(self, err, app); self.end(); }
     var onServerEnd = () => config.server.events.onEnd.call(self, app);
 
-    this.server = app.listen(config.server.port, config.server.hostname, onServerListen);
+    this.server = app.listen(config.server.port, config.server.hostname, 1000, onServerListen);
+    this.server.on('error', onServerError);
 
     process.on('SIGTERM', () => { self.end(); process.exit(); });
     process.on('SIGINT', () => { self.end(); process.exit(); });

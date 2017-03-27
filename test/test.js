@@ -35,7 +35,7 @@ describe('Main', () =>
                     security : server.Server.Security.AllowCrossOrigin,
                     events : {
                         onStart : () => testHttp((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
-                        onEnd: () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
+                        onEnd : () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
                     },
                     webpack : {
                         useWebpack : true,
@@ -47,6 +47,59 @@ describe('Main', () =>
             assert.equal('object', typeof app);
             assert.equal('function', typeof app.then);
             app.then((app) => assert.equal('function', typeof app));
+        });
+
+        it('Basic routing test productive mode', (done) =>
+        {
+            var httpResult1;
+            var httpResult2;
+
+            var app = server.init({
+                serviceClient : {
+                    injectIntoRequest : true
+                },
+                routes : {
+                    modulePaths : './routes'
+                },
+                server : {
+                    mode : server.Server.Mode.Productive,
+                    events : {
+                        onStart : () => testHttp((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
+                        onEnd : () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
+                    },
+                    webpack : {
+                        useWebpack : true,
+                        configFilePath : process.cwd() + '/webpack.config.js'
+                    }
+                }
+            });
+
+            assert.equal('object', typeof app);
+            assert.equal('function', typeof app.then);
+            app.then((app) => assert.equal('function', typeof app));
+        });
+
+        it('Creating an error', (done) =>
+        {
+            var httpResult1;
+            var httpResult2;
+
+            var app = server.init({
+                routes : {
+                    addRoutes : false
+                },
+                server : {
+                    hostname : '1.2.3.4',
+                    port : 80,
+                    mode : server.Server.Mode.Dev,
+                    events : {
+                        onEnd : () =>  done()
+                    },
+                    webpack : {
+                        useWebpack : false
+                    }
+                }
+            });
         });
     });
 });
