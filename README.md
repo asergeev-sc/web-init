@@ -1,5 +1,5 @@
 # ocbesbn-web-init
-[![Coverage Status](https://coveralls.io/repos/github/OpusCapitaBusinessNetwork/web-init/badge.svg?branch=master)](https://coveralls.io/github/OpusCapitaBusinessNetwork/web-init?branch=master&rand=1)
+[![Coverage Status](https://coveralls.io/repos/github/OpusCapitaBusinessNetwork/web-init/badge.svg?branch=master&rand=1)](https://coveralls.io/github/OpusCapitaBusinessNetwork/web-init?branch=master)
 ![Build status](https://circleci.com/gh/OpusCapitaBusinessNetwork/web-init.svg?style=shield&circle-token=2e3e2b7b174d781d2bf12a3fd2db7b1bb2385d03)
 
 This module combines more general and common setup routines for creating a basic REST service environment.
