@@ -18,7 +18,6 @@ test:
   post:
     - sudo mkdir $CIRCLE_TEST_REPORTS/junit
     - sudo cp test-results.xml $CIRCLE_TEST_REPORTS/junit
-    - cd wiki ; git add --all . ; git commit -am 'Updated documentation.' ; git push ; (exit 0)
 
 deployment:
   npm:
@@ -26,3 +25,4 @@ deployment:
     commands:
       - npm publish
       - npm run upload-coverage
+      - cd wiki ; git add --all . ; git commit -am 'Updated documentation.' ; git push ; (exit 0)
