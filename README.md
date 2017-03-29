@@ -74,7 +74,7 @@ in order to maintain a common setup across different services. The internal ocbe
         },
         webpack : {
             useWebpack : false,
-            configFilePath : process.cwd() + '/webpack.conf'
+            configFilePath : process.cwd() + '/webpack.conf.js'
         }
     },
     serviceClient : {
