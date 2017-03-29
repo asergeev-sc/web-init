@@ -1,6 +1,6 @@
 {
   "name": "ocbesbn-web-init",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
   "main": "index.js",
   "scripts": {
