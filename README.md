@@ -64,6 +64,7 @@ in order to maintain a common setup across different services. The internal ocbe
         crossOrigins : [ '*' ],
         maxBodySize : 1048576, // 1 MiB
         staticFilePath : express.static(__dirname + '/static'),
+        indexFilePath : null,
         hostname : process.env.HOST || '0.0.0.0',
         port : process.env.PORT || 3000,
         events : {

@@ -68,6 +68,7 @@ module.exports.Morgan = {
  * @property {array} server.crossOrigins - A list of allowed cross-origins source domains.
  * @property {number} server.maxBodySize - Maximum size in bytes of a http-reuqest-body.
  * @property {string} server.staticFilePath - Path for all static files delivered by the web server.
+ * @property {string} server.indexFilePath - Path of a file delivered by the web server on client requests to /.
  * @property {string} server.hostname - The local host name or ip-address to bind the server to.
  * @property {number} server.port - The local tcp port for the server to listen on.
  * @property {object} server.events - Object providing access points to some life cycle events.
@@ -100,6 +101,7 @@ module.exports.DefaultConfig = {
         crossOrigins : [ '*' ],
         maxBodySize : 1048576, // 1 MiB
         staticFilePath : express.static(__dirname + '/static'),
+        indexFilePath : null,
         hostname : process.env.HOST || '0.0.0.0',
         port : process.env.PORT || 3000,
         events : {
@@ -194,15 +196,18 @@ module.exports.init = function(config) {
         });
     }
 
+    if(config.server.staticFilePath)
+        app.use('/static', config.server.staticFilePath);
+
     if(config.server.mode === this.Server.Mode.Productive)
     {
-        app.use('/static', config.server.staticFilePath);
+        if(config.server.indexFilePath)
+            app.get('/', (req, res) => res.sendFile(config.server.indexFilePath));
     }
     else
     {
         logger.info('Using morgan and webpack.');
 
-        app.use('/static', config.server.staticFilePath);
         app.use(morgan(config.morgan.format, config.morgan.stream));
 
         if(config.server.webpack.useWebpack)
@@ -211,11 +216,28 @@ module.exports.init = function(config) {
             const webpackMiddleware = require('webpack-dev-middleware');
             const webpackConfig = require(config.server.webpack.configFilePath);
             const webpackCompiler = webpack(webpackConfig);
-
-            app.use(webpackMiddleware(webpackCompiler, {
+            const middleware = webpackMiddleware(webpackCompiler, {
                 publicPath : webpackConfig.output && webpackConfig.output.publicPath,
-                noInfo : true
-            }));
+                noInfo : false
+            });
+
+            app.use(middleware);
+
+            if(config.server.indexFilePath)
+            {
+                app.get('/', (req, res) =>
+                {
+                    try
+                    {
+                        res.write(middleware.fileSystem.readFileSync(config.server.indexFilePath));
+                        res.end();
+                    }
+                    catch(e)
+                    {
+                        res.sendFile(config.server.indexFilePath);
+                    }
+                });
+            }
         }
     }
 

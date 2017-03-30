@@ -10,7 +10,8 @@ describe('Main', () =>
     describe('#init()', () =>
     {
         var removeRoutes = () => fs.existsSync('routes') && (fs.unlinkSync('routes/index.js') | fs.rmdirSync('routes'));
-        var testHttp = (onResult) => http.get('http://localhost:3000/hello', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
+        var testMain = (onResult) => http.get('http://localhost:3000/', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
+        var testHello = (onResult) => http.get('http://localhost:3000/hello', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
         var testStatic = (onResult) => http.get('http://localhost:3000/static/test.css', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
 
         removeRoutes();
@@ -22,6 +23,7 @@ describe('Main', () =>
         {
             var httpResult1;
             var httpResult2;
+            var httpResult3;
 
             var app = server.init({
                 serviceClient : {
@@ -34,9 +36,10 @@ describe('Main', () =>
                     mode : server.Server.Mode.Dev,
                     security : server.Server.Security.AllowCrossOrigin,
                     staticFilePath : './static',
+                    indexFilePath : process.cwd() + '/static/test.css',
                     events : {
-                        onStart : () => testHttp((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
-                        onEnd : () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
+                        onStart : () => testMain((res) => { httpResult1 = res; testHello((res) => { httpResult2 = res; testStatic((res) => { httpResult3 = res; server.end();}) }) }),
+                        onEnd : () => assert.equal(httpResult1.trim(), 'Empty') | assert.equal(httpResult2, 'world!') | assert.equal(httpResult3.trim(), 'Empty') | removeRoutes() | done()
                     },
                     webpack : {
                         useWebpack : true,
@@ -65,7 +68,7 @@ describe('Main', () =>
                 server : {
                     mode : server.Server.Mode.Productive,
                     events : {
-                        onStart : () => testHttp((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
+                        onStart : () => testHello((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
                         onEnd : () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
                     },
                     webpack : {
