@@ -149,6 +149,9 @@ module.exports.init = function(config) {
 
     logger.info('Starting up web server... Host: %s, Port: %s', config.server.hostname, config.server.port);
 
+    if(typeof config.server.staticFilePath === 'string')
+        config.server.staticFilePath = express.static(config.server.staticFilePath);
+
     var app = express();
     this.app = app;
 

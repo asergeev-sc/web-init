@@ -33,6 +33,7 @@ describe('Main', () =>
                 server : {
                     mode : server.Server.Mode.Dev,
                     security : server.Server.Security.AllowCrossOrigin,
+                    staticFilePath : './static',
                     events : {
                         onStart : () => testHttp((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
                         onEnd : () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
