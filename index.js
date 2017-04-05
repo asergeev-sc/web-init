@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const extend = require('extend');
-const Logger = require('./logger.js');
+const Logger = require('ocbesbn-logger');
 const Promise = require('bluebird');
 const accetLanguageParser = require('accept-language-parser');
 const ServiceClient = require('ocbesbn-service-client');
@@ -231,7 +231,6 @@ module.exports.init = function(config) {
                     {
                         res.set('Content-Type', 'text/html');
                         res.write(middleware.fileSystem.readFileSync(config.server.indexFilePath));
-                        res.end();
                     }
                     catch(e)
                     {

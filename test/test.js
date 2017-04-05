@@ -74,7 +74,8 @@ describe('Main', () =>
                     webpack : {
                         useWebpack : true,
                         configFilePath : process.cwd() + '/webpack.config.js'
-                    }
+                    },
+                    indexFilePath : process.cwd() + '/static/test.css',
                 }
             });
 
@@ -105,5 +106,11 @@ describe('Main', () =>
                 }
             });
         });
+    });
+
+    describe('weired stuff', () =>
+    {
+        server.Morgan.Format.Custom(() => null);
+        server.Morgan.OutputStream.Custom(() => null);
     });
 });
