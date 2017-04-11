@@ -231,6 +231,7 @@ module.exports.init = function(config) {
                     {
                         res.set('Content-Type', 'text/html');
                         res.write(middleware.fileSystem.readFileSync(config.server.indexFilePath));
+                        res.end();
                     }
                     catch(e)
                     {
