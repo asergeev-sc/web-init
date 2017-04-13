@@ -39,7 +39,7 @@ const server = require('ocbesbn-web-init');
 
 // You might want to pass a configuration object to the init method. A list of parameters and their default values
 // can be found at the .DefaultConfig module property.
-server.init({}).then(console.log);
+server.init({server:{port:YOUR_PORT}}).then(console.log);
 ```
 This code applies a lot of conventions that of course can, but may not be overwritten by passing a configuration object
 to the init() method.
