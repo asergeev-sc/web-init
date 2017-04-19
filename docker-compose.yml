@@ -3,7 +3,7 @@ services:
   main:
     build: .
     environment:
-     - NODE_ENV: development
+     NODE_ENV: 'development'
     network_mode: host
     volumes:
      - .:/home/node/web-init
