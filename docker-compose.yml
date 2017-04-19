@@ -2,6 +2,8 @@ version: '2'
 services:
   main:
     build: .
+    environment:
+     - NODE_ENV: development
     network_mode: host
     volumes:
      - .:/home/node/web-init
