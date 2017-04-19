@@ -8,6 +8,7 @@ const Logger = require('ocbesbn-logger');
 const Promise = require('bluebird');
 const accetLanguageParser = require('accept-language-parser');
 const ServiceClient = require('ocbesbn-service-client');
+const userIdentityMiddleware = require('useridentity-middleware');
 
 /**
  * Module for general and common initialization of the OpusCapita Business Network
@@ -23,6 +24,7 @@ const ServiceClient = require('ocbesbn-service-client');
  * @requires winston
  * @requires bluebird
  * @requires ocbesbn-service-client
+ * @requires useridentity-middleware
  */
 
 /**
@@ -161,6 +163,7 @@ module.exports.init = function(config) {
     app.use(cookieParser());
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
+    app.use(userIdentityMiddleware);
     app.use((req, res, next) => { req.ocbesbn = req.ocbesbn || { }; next(); })
 
     app.use((req, res, next) =>

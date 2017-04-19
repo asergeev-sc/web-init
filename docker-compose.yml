@@ -2,6 +2,7 @@ version: '2'
 services:
   main:
     build: .
+    image: ocbesbn/web-init
     network_mode: host
     volumes:
      - .:/home/node/web-init
