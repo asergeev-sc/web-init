@@ -81,6 +81,7 @@ module.exports.Morgan = {
  * @property {object} server.webpack - Webpack configuration.
  * @property {boolean} server.webpack.useWebpack - Controls whenever the server should use Webpack.
  * @property {boolean} server.webpack.configFilePath - Webpack configuration file path.
+ * @property {array} server.middlewares - Array of additional middleware objects to be used with the express web server.
  * @property {object} serviceClient - Configuration for injecting a [ServiceClient]{@link https://github.com/OpusCapitaBusinessNetwork/service-client} instance into every request.
  * @property {boolean} serviceClient.injectIntoRequest - Whenever to active ServiceClient-injection.
  * @property {boolean} serviceClient.consul - Configuration options for service discovery done by the ServiceClient.
@@ -115,7 +116,8 @@ module.exports.DefaultConfig = {
         webpack : {
             useWebpack : false,
             configFilePath : process.cwd() + '/webpack.conf.js'
-        }
+        },
+        middlewares : [ ]
     },
     logger : new Logger({ context : { serviceName : 'web-init' } }),
     serviceClient : {
@@ -163,8 +165,11 @@ module.exports.init = function(config) {
     app.use(cookieParser());
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
-    app.use(userIdentityMiddleware);
     app.use((req, res, next) => { req.ocbesbn = req.ocbesbn || { }; next(); })
+    app.use(userIdentityMiddleware);
+
+    if(config.server.middlewares)
+        config.server.middlewares.forEach(obj => app.use(obj));
 
     app.use((req, res, next) =>
     {
@@ -257,17 +262,15 @@ module.exports.init = function(config) {
         Promise.all(inits).reflect();
     }
 
-    var self = this;
-
-    var onServerListen = () => config.server.events.onStart.call(self, app);
-    var onServerError = (err) => { config.server.events.onError.call(self, err, app); self.end(); }
-    var onServerEnd = () => config.server.events.onEnd.call(self, app);
+    var onServerListen = () => config.server.events.onStart.call(this, app);
+    var onServerError = (err) => { config.server.events.onError.call(this, err, app); this.end(); }
+    var onServerEnd = () => config.server.events.onEnd.call(this, app);
 
     this.server = app.listen(config.server.port, config.server.hostname, 1000, onServerListen);
     this.server.on('error', onServerError);
 
-    process.on('SIGTERM', () => { self.end(); process.exit(); });
-    process.on('SIGINT', () => { self.end(); process.exit(); });
+    process.on('SIGTERM', () => { this.end(); process.exit(); });
+    process.on('SIGINT', () => { this.end(); process.exit(); });
 
     logger.info('Server started.');
 
@@ -279,8 +282,12 @@ module.exports.init = function(config) {
  */
 module.exports.end = function()
 {
-    var self = this;
-
     if(this.server)
-        this.server.close(() => self.config.server.events.onEnd.call(self, self.app));
+    {
+        this.server.close(() =>
+        {
+            this.config.server.events.onEnd.call(this, this.app);
+            this.server = null;
+        });
+    }
 }
