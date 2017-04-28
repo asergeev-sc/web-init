@@ -183,8 +183,16 @@ module.exports.init = function(config) {
     {
         app.use((req, res, next) =>
         {
+            var localHeaders = { cookie : req.headers.cookie };
+
+            for(var key in req.headers)
+            {
+                if(key.startsWith('x-'))
+                    localHeaders[key] = req.headers[key];
+            }
+
             req.ocbesbn.serviceClient = new ServiceClient(config.serviceClient);
-            req.ocbesbn.serviceClient.contextify({ headers : req.headers });
+            req.ocbesbn.serviceClient.contextify({ headers : localHeaders });
 
             next();
         });
