@@ -81,9 +81,9 @@ in order to maintain a common setup across different services. The internal ocbe
     },
     logger : new Logger({ context : { serviceName : 'web-init' } }),
     serviceClient : {
-        injectIntoRequest : false,
+        injectIntoRequest : true,
         consul : {
-            host : 'localhost'
+            host : 'consul'
         },
         caching : {
             driver : 'dummy',

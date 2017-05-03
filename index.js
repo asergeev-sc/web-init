@@ -122,9 +122,9 @@ module.exports.DefaultConfig = {
     },
     logger : new Logger({ context : { serviceName : 'web-init' } }),
     serviceClient : {
-        injectIntoRequest : false,
+        injectIntoRequest : true,
         consul : {
-            host : 'localhost'
+            host : 'consul'
         },
         caching : {
             driver : 'dummy',
@@ -170,11 +170,6 @@ module.exports.init = function(config) {
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
     app.use((req, res, next) => { req.ocbesbn = req.ocbesbn || { }; next(); })
-    app.use(userIdentityMiddleware);
-
-    if(config.server.middlewares)
-        config.server.middlewares.forEach(obj => app.use(obj));
-
     app.use((req, res, next) =>
     {
         var languages = req.headers["accept-language"] || 'en';
@@ -200,6 +195,11 @@ module.exports.init = function(config) {
             next();
         });
     }
+
+    app.use(userIdentityMiddleware);
+
+    if(config.server.middlewares)
+        config.server.middlewares.forEach(obj => app.use(obj));
 
     if(config.server.security & this.Server.Security.AllowCrossOrigin)
     {
