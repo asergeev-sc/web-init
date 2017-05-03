@@ -79,11 +79,17 @@ in order to maintain a common setup across different services. The internal ocbe
         },
         middlewares : [ ]
     },
+    logger : new Logger({ context : { serviceName : 'web-init' } }),
     serviceClient : {
         injectIntoRequest : false,
         consul : {
             host : 'localhost'
-        }
+        },
+        caching : {
+            driver : 'dummy',
+            defaultExpire : 600
+        },
+        headersToProxy : [ 'Cookie', 'Authorization', 'From' ]
     },
     routes : {
         addRoutes : true,

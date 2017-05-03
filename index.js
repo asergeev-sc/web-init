@@ -89,6 +89,7 @@ module.exports.Morgan = {
  * @property {object} serviceClient.caching - Configuration options for service-client request caching.
  * @property {string} serviceClient.caching.driver - Cache driver to use.
  * @property {number} serviceClient.caching.defaultExpire - Global cache entry expiration time in seconds.
+ * @property {array} serviceClient.headersToProxy - List of source headers to be copied to the context of a [ServiceClient]{@link https://github.com/OpusCapitaBusinessNetwork/service-client} instance. Headers starting with X- are always added.
  * @property {object} routes - Basic routing configuration for the RESTful web server.
  * @property {boolean} routes.addRoutes - Controls whenever routes should be added to be accessible via http.
  * @property {array} routes.modelPaths - List of modules to load in order to register wev server routes.
@@ -128,7 +129,8 @@ module.exports.DefaultConfig = {
         caching : {
             driver : 'dummy',
             defaultExpire : 600
-        }
+        },
+        headersToProxy : [ 'Cookie', 'Authorization', 'From' ]
     },
     routes : {
         addRoutes : true,
@@ -151,6 +153,8 @@ module.exports.DefaultConfig = {
 module.exports.init = function(config) {
 
     this.config = config = extend(true, { }, this.DefaultConfig, config);
+    config.serviceClient.headersToProxy = config.serviceClient.headersToProxy.map(item => item.toLowerCase());
+
     var logger = config.logger;
 
     logger.info('Starting up web server... Host: %s, Port: %s', config.server.hostname, config.server.port);
@@ -183,13 +187,12 @@ module.exports.init = function(config) {
     {
         app.use((req, res, next) =>
         {
-            var localHeaders = { cookie : req.headers.cookie };
+            var headersToProxy = config.serviceClient.headersToProxy;
+            var localHeaders = { };
 
             for(var key in req.headers)
-            {
-                if(key.startsWith('x-'))
-                    localHeaders[key] = req.headers[key];
-            }
+                if(key.startsWith('x-') || headersToProxy.indexOf(key) !== -1)
+                    localHeaders[key] = req.headers[key]
 
             req.ocbesbn.serviceClient = new ServiceClient(config.serviceClient);
             req.ocbesbn.serviceClient.contextify({ headers : localHeaders });
