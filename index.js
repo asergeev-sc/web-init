@@ -262,6 +262,7 @@ module.exports.init = function(config) {
     }
 
     app.use(config.server.events.onRequest);
+    app.get('/api/health/check', (req, res) => res.json({ message : "Yes, I'm alive!" }));
 
     if(config.routes.addRoutes === true)
     {

@@ -123,9 +123,6 @@ describe('Main', () =>
 
         it('Creating an error', (done) =>
         {
-            var httpResult1;
-            var httpResult2;
-
             var app = server.init({
                 routes : {
                     addRoutes : false
@@ -144,14 +141,34 @@ describe('Main', () =>
             });
         });
 
+        it('Health check', (done) =>
+        {
+            var testHealth = (onResult) => http.get('http://localhost:3000/api/health/check', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
+            var result;
+
+            var app = server.init({
+                routes : {
+                    addRoutes : false
+                },
+                server : {
+                    mode : server.Server.Mode.Dev,
+                    events : {
+                        onStart : () => { testHealth((res) => { result = res; server.end(); }); },
+                        onEnd : () =>  { assert.equal(result, '{"message":"Yes, I\'m alive!"}'); done(); }
+                    },
+                    webpack : {
+                        useWebpack : false
+                    }
+                }
+            });
+        });
+
         it('Ending not Initialized server', (done) =>
         {
             server.end();
             done();
         });
     });
-
-
 
     describe('weired stuff', () =>
     {

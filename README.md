@@ -46,6 +46,15 @@ to the init() method.
 
 ---
 
+### Health checking
+As another convention, this module provides a static REST endpoint for health checking. If the web server is up and running, GET calls to /api/health/check will return "200 OK" sending you the following object:
+
+```JS
+{"message":"Yes, I'm alive!"}
+```
+
+---
+
 ### Inter-Service-Communication
 If desired, this module may provide a [ServiceClient](https://github.com/OpusCapitaBusinessNetwork/service-client) instance initialized with and injected into any incoming HTTP request (req.ocbesbn.serviceClient). This allows you to talk to other services while automatically keeping all headers and cookies sent with the original request. This will provide a full request context towards the target service. See the *serviceClient* key of the [DefaultConfig](#default-configuration) object.
 
