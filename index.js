@@ -169,11 +169,11 @@ module.exports.init = function(config) {
     app.use(cookieParser());
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
-    app.use((req, res, next) => { req.ocbesbn = req.ocbesbn || { }; next(); })
+    app.use((req, res, next) => { req.opuscapita = req.opuscapita || { }; next(); })
     app.use((req, res, next) =>
     {
         var languages = req.headers["accept-language"] || 'en';
-        req.ocbesbn.acceptLanguage = accetLanguageParser.parse(languages);
+        req.opuscapita.acceptLanguage = accetLanguageParser.parse(languages);
 
         next();
     });
@@ -189,8 +189,8 @@ module.exports.init = function(config) {
                 if(key.startsWith('x-') || headersToProxy.indexOf(key) !== -1)
                     localHeaders[key] = req.headers[key]
 
-            req.ocbesbn.serviceClient = new ServiceClient(config.serviceClient);
-            req.ocbesbn.serviceClient.contextify({ headers : localHeaders });
+            req.opuscapita.serviceClient = new ServiceClient(config.serviceClient);
+            req.opuscapita.serviceClient.contextify({ headers : localHeaders });
 
             next();
         });
