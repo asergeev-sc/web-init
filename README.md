@@ -56,14 +56,14 @@ As another convention, this module provides a static REST endpoint for health ch
 ---
 
 ### Inter-Service-Communication
-If desired, this module may provide a [ServiceClient](https://github.com/OpusCapitaBusinessNetwork/service-client) instance initialized with and injected into any incoming HTTP request (req.ocbesbn.serviceClient). This allows you to talk to other services while automatically keeping all headers and cookies sent with the original request. This will provide a full request context towards the target service. See the *serviceClient* key of the [DefaultConfig](#default-configuration) object.
+If desired, this module may provide a [ServiceClient](https://github.com/OpusCapitaBusinessNetwork/service-client) instance initialized with and injected into any incoming HTTP request (req.opuscapita.serviceClient). This allows you to talk to other services while automatically keeping all headers and cookies sent with the original request. This will provide a full request context towards the target service. See the *serviceClient* key of the [DefaultConfig](#default-configuration) object.
 
 ---
 
 ### Default configuration
 
 The default configuration object provides hints about what the module's standard behavior is like. It is mostly recommended to leave most settings as they are and treat them more as general conventions to a common structure
-in order to maintain a common setup across different services. The internal ocbesbn middleware adds an ocbesbn sub-key to every request providing addition data and actions for every request.
+in order to maintain a common setup across different services. The internal opuscapita middleware adds an opuscapita sub-key to every request providing addition data and actions for every request.
 
 ```JS
 {
