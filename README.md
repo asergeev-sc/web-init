@@ -46,6 +46,25 @@ to the init() method.
 
 ---
 
+### Request context (req.opuscapita)
+ocbesbn-web-init adds a sub-context to every request coming in. The following properties will be available:
+
+* [acceptLanguage](https://www.npmjs.com/package/accept-language-parser)
+* [logger](https://github.com/OpusCapita/logger)
+* [serviceClient](https://github.com/OpusCapitaBusinessNetwork/service-client)
+
+Example:
+
+```JS
+app.get('/hello', (req, res) =>
+{
+    req.opuscapita.logger.info('World');
+    res.send('World');
+});
+```
+
+---
+
 ### Health checking
 As another convention, this module provides a static REST endpoint for health checking. If the web server is up and running, GET calls to /api/health/check will return "200 OK" sending you the following object:
 
