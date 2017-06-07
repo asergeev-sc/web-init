@@ -104,10 +104,6 @@ in order to maintain a common setup across different services. The internal opus
         addRoutes : true,
         modulePaths : [ process.cwd() + '/src/server/routes' ],
         dbInstance : null
-    },
-    morgan : {
-        format : this.Morgan.Format.Dev,
-        stream : this.Morgan.OutputStream.Console
     }
 }
 ```

@@ -1,6 +1,6 @@
 {
   "name": "ocbesbn-web-init",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Basic web server setup for OpusCapitaBusinessNetwork REST services.",
   "main": "index.js",
   "scripts": {
@@ -37,9 +37,8 @@
     "express": "^4.15.2",
     "extend": "^3.0.0",
     "helmet": "^3.4.0",
-    "morgan": "^1.8.1",
-    "ocbesbn-logger": "^1.0.0",
-    "ocbesbn-service-client": "^1.0.1",
+    "ocbesbn-logger": "^1.0.2",
+    "ocbesbn-service-client": "^1.0.7",
     "useridentity-middleware": "^2.0.0",
     "webpack": "^2.4.1",
     "webpack-dev-middleware": "^1.10.1",

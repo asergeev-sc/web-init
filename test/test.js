@@ -2,32 +2,53 @@ const server = require('../index.js');
 const assert = require('assert');
 const fs = require('fs');
 const http = require('http');
+const Promise = require('bluebird');
 
-var routeScript = "module.exports.init = (app) => { app.get('/hello', (req, res) => res.send('world!')); return require('bluebird').resolve() }";
+var routeScript = `
+module.exports.init = (app) =>
+{
+    app.get('/hello', (req, res) => res.send('world!'));
+    app.get('/error', (req, res) => { throw new Error('Gone!'); });
+
+    return require('bluebird').resolve();
+}
+`;
 
 describe('Main', () =>
 {
     describe('#init()', () =>
     {
+        var complexRequestOptions = {
+            host : 'localhost',
+            port : 3000,
+            path : '/',
+            headers : { 'X-Text-Header' : 'Hello!' }
+        };
+
+        var testMain = () => new Promise((resolve, reject) => http.get(complexRequestOptions, (res) => res.on('data', (buffer) => resolve(buffer.toString()))));
+        var testHello = () => new Promise((resolve, reject) => http.get('http://localhost:3000/hello', (res) => res.on('data', (buffer) => resolve(buffer.toString()))));
+        var testStatic = () => new Promise((resolve, reject) => http.get('http://localhost:3000/static/test.css', (res) => res.on('data', (buffer) => resolve(buffer.toString()))));
+        var testError = () => new Promise((resolve, reject) => http.get('http://localhost:3000/error', (res) => res.on('data', (buffer) => resolve(buffer.toString()))));
+
         var removeRoutes = () => fs.existsSync('routes') && (fs.unlinkSync('routes/index.js') | fs.rmdirSync('routes'));
-        var testMain = (onResult) => http.get('http://localhost:3000/', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
-        var testHello = (onResult) => http.get('http://localhost:3000/hello', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
-        var testStatic = (onResult) => http.get('http://localhost:3000/static/test.css', (res) => res.on('data', (buffer) => onResult(buffer.toString())));
 
         removeRoutes();
 
         fs.mkdirSync('routes');
-        fs.writeFile('routes/index.js', routeScript);
+        fs.writeFileSync('routes/index.js', routeScript);
 
         it('Basic routing test', (done) =>
         {
             var httpResult1;
             var httpResult2;
             var httpResult3;
+            var httpResult4;
+
+            var errorData = fs.readFileSync('./errorData.json', 'utf8');
 
             var app = server.init({
                 serviceClient : {
-                    injectIntoRequest : true
+                    injectIntoRequest : false
                 },
                 routes : {
                     modulePaths : './routes'
@@ -38,8 +59,23 @@ describe('Main', () =>
                     staticFilePath : './static',
                     indexFilePath : process.cwd() + '/static/test.css',
                     events : {
-                        onStart : () => testMain((res) => { httpResult1 = res; testHello((res) => { httpResult2 = res; testStatic((res) => { httpResult3 = res; server.end();}) }) }),
-                        onEnd : () => assert.equal(httpResult1.trim(), 'Empty') | assert.equal(httpResult2, 'world!') | assert.equal(httpResult3.trim(), 'Empty') | removeRoutes() | done()
+                        onStart : () =>
+                        {
+                            testMain().then(res => httpResult1 = res)
+                            .then(testHello).then(res => httpResult2 = res)
+                            .then(testStatic).then(res => httpResult3 = res)
+                            .then(testError).then(res => httpResult4 = res)
+                            .finally(() => server.end());
+                        },
+                        onEnd : () =>
+                        {
+                            assert.equal(httpResult1.trim(), 'Empty');
+                            assert.equal(httpResult2, 'world!');
+                            assert.equal(httpResult3.trim(), 'Empty');
+                            assert.equal(httpResult4, errorData);
+                            removeRoutes();
+                            done();
+                        }
                     },
                     webpack : {
                         useWebpack : true,
@@ -73,7 +109,13 @@ describe('Main', () =>
                     staticFilePath : './static',
                     indexFilePath : process.cwd() + '/static/test.css',
                     events : {
-                        onStart : () => testMain((res) => { httpResult1 = res; testHello((res) => { httpResult2 = res; testStatic((res) => { httpResult3 = res; server.end();}) }) }),
+                        onStart : () =>
+                        {
+                            testMain().then(res => httpResult1 = res)
+                            .then(testHello).then(res => httpResult2 = res)
+                            .then(testStatic).then(res => httpResult3 = res)
+                            .finally(() => server.end())
+                        },
                         onEnd : () => assert.equal(httpResult1.trim(), 'Empty') | assert.equal(httpResult2, 'world!') | assert.equal(httpResult3.trim(), 'Empty') | assert.equal(middlewareResult, true) | removeRoutes() | done()
                     },
                     webpack : {
@@ -104,7 +146,12 @@ describe('Main', () =>
                 server : {
                     mode : server.Server.Mode.Productive,
                     events : {
-                        onStart : () => testHello((res) => { httpResult1 = res; testStatic((res) => { httpResult2 = res; server.end();}) }),
+                        onStart : () =>
+                        {
+                            testHello().then(res => httpResult1 = res)
+                            .then(testStatic).then(res => httpResult2 = res)
+                            .finally(() => server.end())
+                        },
                         onEnd : () => assert.equal(httpResult1, 'world!') | assert.equal(httpResult2.trim(), 'Empty') | removeRoutes() | done()
                     },
                     webpack : {
@@ -168,11 +215,5 @@ describe('Main', () =>
             server.end();
             done();
         });
-    });
-
-    describe('weired stuff', () =>
-    {
-        server.Morgan.Format.Custom(() => null);
-        server.Morgan.OutputStream.Custom(() => null);
     });
 });

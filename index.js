@@ -2,24 +2,23 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-const morgan = require('morgan');
 const extend = require('extend');
 const Logger = require('ocbesbn-logger');
 const Promise = require('bluebird');
 const accetLanguageParser = require('accept-language-parser');
 const ServiceClient = require('ocbesbn-service-client');
 const userIdentityMiddleware = require('useridentity-middleware');
+const cwd = process.cwd();
 
 /**
  * Module for general and common initialization of the OpusCapita Business Network
  * web server module providing default behavior for RESTful services.
- * @module ocbesbn-web-init
+ * @module ocbesbn-w©eb-init
  * @requires express
  * @requires webpack
  * @requires body-parser
  * @requires cookie-parser
  * @requires helmet
- * @requires morgan
  * @requires extend
  * @requires winston
  * @requires bluebird
@@ -45,21 +44,10 @@ module.exports.Server = {
 }
 
 /**
- * Static object containing enumeration objects providing behavior for Morgan logging.
+ * Contains the name of the current service this module is running in. It simply takes the last directory
+ * name of the main processes path.
  */
-module.exports.Morgan = {
-    /**
-     * Enumeration for preselected Morgan logging styles.
-     * @enum {string}
-     */
-    Format : { Combined : 'combined', Common : 'common', Dev : 'dev', Short : 'short', Tiny : 'tiny', Custom : (callback) => callback },
-
-    /**
-     * Enumeration provising some standard Morgan output streams.
-     * @enum {Stream}
-     */
-    OutputStream : { StdOut : process.stdout, StdErr : process.stderr, Console : { write : console.log }, Custom : (callback) => { write : callback } }
-}
+module.exports.serviceName = cwd.slice(cwd.lastIndexOf('/') + 1);
 
 /**
  * Static object representing a default configuration set for ocbesbn-web-init. Have a look at the [actual values]{@link DefaultConfig}.
@@ -94,9 +82,6 @@ module.exports.Morgan = {
  * @property {boolean} routes.addRoutes - Controls whenever routes should be added to be accessible via http.
  * @property {array} routes.modelPaths - List of modules to load in order to register wev server routes.
  * @property {object} routes.dbInstance - Databse object to be passed to every module registering routes.
- * @property {object} morgan - Basic morgan logging configuration.
- * @property {Morgan.Format} morgan.format - Morgan [log format]{@link module:ocbesbn-web-init.Morgan.Format}.
- * @property {Morgan.OutputStream} morgan.stream - Morgan output [stream]{@link module:ocbesbn-web-init.Morgan.OutputStream}.
  */
 module.exports.DefaultConfig = {
     server : {
@@ -120,7 +105,7 @@ module.exports.DefaultConfig = {
         },
         middlewares : [ ]
     },
-    logger : new Logger({ context : { serviceName : 'web-init' } }),
+    logger : new Logger({ context : { serviceName : module.exports.serviceName } }),
     serviceClient : {
         injectIntoRequest : true,
         consul : {
@@ -136,10 +121,6 @@ module.exports.DefaultConfig = {
         addRoutes : true,
         modulePaths : [ process.cwd() + '/src/server/routes' ],
         dbInstance : null
-    },
-    morgan : {
-        format : this.Morgan.Format.Dev,
-        stream : this.Morgan.OutputStream.Console
     }
 }
 
@@ -170,10 +151,23 @@ module.exports.init = function(config) {
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
     app.use((req, res, next) => { req.opuscapita = req.opuscapita || { }; next(); })
+    app.use(userIdentityMiddleware);
     app.use((req, res, next) =>
     {
         var languages = req.headers["accept-language"] || 'en';
         req.opuscapita.acceptLanguage = accetLanguageParser.parse(languages);
+
+        req.opuscapita.logger = new Logger({
+            context : {
+                serviceName : this.serviceName,
+                method : req.method,
+                requestUri : req.originalUrl,
+                correlationId : req.headers['correlation-id'],
+                userId : req.opuscapita.userData('id')
+            }
+        });
+
+        req.opuscapita.logger.info('Incoming request.');
 
         next();
     });
@@ -189,14 +183,14 @@ module.exports.init = function(config) {
                 if(key.startsWith('x-') || headersToProxy.indexOf(key) !== -1)
                     localHeaders[key] = req.headers[key]
 
-            req.opuscapita.serviceClient = new ServiceClient(config.serviceClient);
+            var serviceClientConfig = extend(true, config.serviceClient, { logger : req.opuscapita.logger.clone() });
+
+            req.opuscapita.serviceClient = new ServiceClient(serviceClientConfig);
             req.opuscapita.serviceClient.contextify({ headers : localHeaders });
 
             next();
         });
     }
-
-    app.use(userIdentityMiddleware);
 
     if(config.server.middlewares)
         config.server.middlewares.forEach(obj => app.use(obj));
@@ -225,9 +219,7 @@ module.exports.init = function(config) {
     }
     else
     {
-        logger.info('Using morgan and webpack.');
-
-        app.use(morgan(config.morgan.format, config.morgan.stream));
+        logger.info('Using webpack.');
 
         if(config.server.webpack.useWebpack)
         {
@@ -262,6 +254,8 @@ module.exports.init = function(config) {
     }
 
     app.use(config.server.events.onRequest);
+
+
     app.get('/api/health/check', (req, res) => res.json({ message : "Yes, I'm alive!" }));
 
     if(config.routes.addRoutes === true)
@@ -273,6 +267,12 @@ module.exports.init = function(config) {
 
         Promise.all(inits).reflect();
     }
+
+    app.use((err, req, res, next) =>
+    {
+        req.opuscapita.logger.error(err.stack);
+        res.status(500).send(err.stack);
+    });
 
     var onServerListen = () => config.server.events.onStart.call(this, app);
     var onServerError = (err) => { config.server.events.onError.call(this, err, app); this.end(); }
