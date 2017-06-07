@@ -19,6 +19,7 @@ when initialized. The default path for routes is "./src/server/routes". This loc
 but may not be overwritten to stay with common service conventions.
 
 A route module can be created using the following code:
+
 ```JS
 const Promise = require('bluebird');
 
