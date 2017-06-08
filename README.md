@@ -54,6 +54,8 @@ ocbesbn-web-init adds a sub-context to every request coming in. The following pr
 * [logger](https://github.com/OpusCapita/logger)
 * [serviceClient](https://github.com/OpusCapitaBusinessNetwork/service-client)
 
+Additional context data might be injected by additional middleware. By default, web-init includes the [useridentity-middleware](https://github.com/OpusCapitaBusinessNetwork/useridentity-middleware) which actually adds additional methods.
+
 Example:
 
 ```JS
