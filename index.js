@@ -198,7 +198,7 @@ module.exports.init = function(config) {
 
         if(req.opuscapita.serviceClient)
             req.opuscapita.serviceClient.config.logger = req.opuscapita.logger.clone();
-            
+
         req.opuscapita.logger.info('Incoming request.');
 
         next();
