@@ -184,7 +184,7 @@ module.exports.init = function(config)
                 serviceName : this.serviceName,
                 method : req.method,
                 requestUri : req.originalUrl,
-                correlationId : req.headers['correlation-id']
+                correlationId : req.headers['correlation-id'],
                 userId : req.opuscapita.userData('id')
             }
         });
