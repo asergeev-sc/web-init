@@ -151,6 +151,7 @@ module.exports.init = function(config) {
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
     app.use((req, res, next) => { req.opuscapita = req.opuscapita || { }; next(); })
+    app.use(userIdentityMiddleware);
     app.use((req, res, next) =>
     {
         var languages = req.headers["accept-language"] || 'en';
@@ -190,8 +191,6 @@ module.exports.init = function(config) {
             next();
         });
     }
-
-    app.use(userIdentityMiddleware);
 
     if(config.server.middlewares)
         config.server.middlewares.forEach(obj => app.use(obj));
