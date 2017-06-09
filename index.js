@@ -131,8 +131,8 @@ module.exports.DefaultConfig = {
  * @param {object} config - Optional configuration object extending {@link module:ocbesbn-web-init.DefaultConfig}.
  * @returns {Promise} [Promise]{@link http://bluebirdjs.com/docs/api-reference.html} containing an [Express]{@link https://github.com/expressjs/express} instance.
  */
-module.exports.init = function(config) {
-
+module.exports.init = function(config)
+{
     this.config = config = extend(true, { }, this.DefaultConfig, config);
     config.serviceClient.headersToProxy = config.serviceClient.headersToProxy.map(item => item.toLowerCase());
 
@@ -151,26 +151,6 @@ module.exports.init = function(config) {
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
     app.use((req, res, next) => { req.opuscapita = req.opuscapita || { }; next(); })
-    app.use(userIdentityMiddleware);
-    app.use((req, res, next) =>
-    {
-        var languages = req.headers["accept-language"] || 'en';
-        req.opuscapita.acceptLanguage = accetLanguageParser.parse(languages);
-
-        req.opuscapita.logger = new Logger({
-            context : {
-                serviceName : this.serviceName,
-                method : req.method,
-                requestUri : req.originalUrl,
-                correlationId : req.headers['correlation-id']
-                //userId : req.opuscapita.userData('id')
-            }
-        });
-
-        req.opuscapita.logger.info('Incoming request.');
-
-        next();
-    });
 
     if(config.serviceClient.injectIntoRequest === true)
     {
@@ -191,6 +171,28 @@ module.exports.init = function(config) {
             next();
         });
     }
+
+    app.use(userIdentityMiddleware);
+
+    app.use((req, res, next) =>
+    {
+        var languages = req.headers["accept-language"] || 'en';
+        req.opuscapita.acceptLanguage = accetLanguageParser.parse(languages);
+
+        req.opuscapita.logger = new Logger({
+            context : {
+                serviceName : this.serviceName,
+                method : req.method,
+                requestUri : req.originalUrl,
+                correlationId : req.headers['correlation-id']
+                userId : req.opuscapita.userData('id')
+            }
+        });
+
+        req.opuscapita.logger.info('Incoming request.');
+
+        next();
+    });
 
     if(config.server.middlewares)
         config.server.middlewares.forEach(obj => app.use(obj));
