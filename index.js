@@ -13,7 +13,7 @@ const cwd = process.cwd();
 /**
  * Module for general and common initialization of the OpusCapita Business Network
  * web server module providing default behavior for RESTful services.
- * @module ocbesbn-w©eb-init
+ * @module ocbesbn-web-init
  * @requires express
  * @requires webpack
  * @requires body-parser
@@ -151,7 +151,6 @@ module.exports.init = function(config) {
     app.use(bodyParser.json({ limit : config.server.maxBodySize }));
     app.use(bodyParser.urlencoded({ extended: false, limit : config.server.maxBodySize }));
     app.use((req, res, next) => { req.opuscapita = req.opuscapita || { }; next(); })
-    app.use(userIdentityMiddleware);
     app.use((req, res, next) =>
     {
         var languages = req.headers["accept-language"] || 'en';
@@ -162,12 +161,9 @@ module.exports.init = function(config) {
                 serviceName : this.serviceName,
                 method : req.method,
                 requestUri : req.originalUrl,
-                correlationId : req.headers['correlation-id'],
-                userId : req.opuscapita.userData('id')
+                correlationId : req.headers['correlation-id']
             }
         });
-
-        req.opuscapita.logger.info('Incoming request.');
 
         next();
     });
@@ -191,6 +187,22 @@ module.exports.init = function(config) {
             next();
         });
     }
+
+    app.use(userIdentityMiddleware);
+
+    app.use((req, res, next) =>
+    {
+        req.opuscapita.logger.contextify({
+            userId : req.opuscapita.userData('id')
+        });
+
+        if(req.opuscapita.serviceClient)
+            req.opuscapita.serviceClient.config.logger = req.opuscapita.logger.clone();
+            
+        req.opuscapita.logger.info('Incoming request.');
+
+        next();
+    });
 
     if(config.server.middlewares)
         config.server.middlewares.forEach(obj => app.use(obj));
