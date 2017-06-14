@@ -282,7 +282,11 @@ module.exports.init = function(config) {
 
     app.use((err, req, res, next) =>
     {
-        req.opuscapita.logger.error(err.stack);
+        if(req.opuscapita)
+            req.opuscapita.logger.error(err.stack);
+        else
+            logger.error(err.stack);
+
         res.status(500).send(err.stack);
     });
 
